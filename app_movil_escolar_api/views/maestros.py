@@ -35,7 +35,7 @@ class MaestrosView(generics.CreateAPIView):
             # ... (creación de usuario igual) ...
             email = request.data['email']
             if User.objects.filter(email=email).exists():
-                 return Response({"message": "Username taken"}, 400)
+                return Response({"message": "Username taken"}, 400)
             
             user = User.objects.create(username=email, email=email, first_name=request.data['first_name'], last_name=request.data['last_name'], is_active=1)
             user.set_password(request.data['password'])
