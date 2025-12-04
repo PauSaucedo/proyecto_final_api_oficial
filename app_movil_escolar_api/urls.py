@@ -47,7 +47,9 @@ urlpatterns = [
         path('eventos-edit/', eventos.EventosViewEdit.as_view()),
 #**************************************************************************
 
-    
+    #Total Users
+        path('total-usuarios/', users.TotalUsers.as_view()),
+        
     #Login
         path('login/', auth.CustomAuthToken.as_view()),
     #Logout
