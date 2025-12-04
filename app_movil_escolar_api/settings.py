@@ -56,7 +56,15 @@ import os
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-STATIC_URL = "/static/"
+
+STATIC_URL = '/static/'
+
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+    
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "templates")]
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
@@ -81,7 +89,7 @@ WSGI_APPLICATION = 'app_movil_escolar_api.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3',
+        default='postgresql://postgres:postgres@localhost:5432/mysite',
         conn_max_age=600
     )
 }
