@@ -1,42 +1,37 @@
 import os
-import dj_database_url
+import dj_database_url  # Importado para manejar la conexión de Render/PostgreSQL
 
-# === 1. Configuración Básica ===
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# IMPORTANTE: En producción, cambia esto por False y usa variables de entorno
-SECRET_KEY = '-_&+lsebec(whhw!%n@ww&1j=4-^j_if9x8$q778+99oz&!ms2'
-DEBUG = False
+# Mantén la clave secreta en variables de entorno en producción (¡SÚPER IMPORTANTE!)
+SECRET_KEY = os.environ.get('SECRET_KEY', '-_&+lsebec(whhw!%n@ww&1j=4-^j_if9x8$q778+99oz&!ms2')
 
-# Permitimos todo por ahora para que no te de lata al probar
-ALLOWED_HOSTS = ['*']
+DEBUG = True # en desarrollo
+# En Render, DEBUG se desactiva cuando ALLOWED_HOSTS no está vacío
+if os.environ.get('RENDER'):
+    DEBUG = False
 
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".render.com"] # Añadido dominio de Render
 
-# === 2. Aplicaciones Instaladas ===
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',  # <--- Solo una vez, ¡super importante!
-    
-    # Third party apps
+    'django.contrib.staticfiles',
+    'django_filters', # necesarios para los filtros de DRF
     'rest_framework',
-    'rest_framework.authtoken',
-    'django_filters',
-    'corsheaders',
-    
-    # Tu app (asegúrate que el nombre coincida con tu carpeta)
+    'rest_framework.authtoken', # conserva soporte de tokens de DRF
+    'corsheaders', # librería CORS actualizada
     'app_movil_escolar_api',
 ]
 
-# === 3. Middleware (El orden importa muchísimo) ===
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', 
+    'whitenoise.middleware.WhiteNoiseMiddleware', # <--- NUEVO: Para servir archivos estáticos en Render
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',      # CORS va antes de CommonMiddleware
+    'corsheaders.middleware.CorsMiddleware', # CORS debe ir antes de CommonMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -44,7 +39,24 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Configuración de CORS: define orígenes permitidos y quita CORS_ORIGIN_ALLOW_ALL
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:4200',
+]
+CORS_ALLOW_CREDENTIALS = True
+
 ROOT_URLCONF = 'app_movil_escolar_api.urls'
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+STATIC_URL = "/static/"
+# --- Configuración de Archivos Estáticos para Render/Whitenoise ---
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# -----------------------------------------------------------------
+
 
 TEMPLATES = [
     {
@@ -64,25 +76,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'app_movil_escolar_api.wsgi.application'
 
-
-# === 4. Base de Datos ===
-# Nota: En PythonAnywhere usualmente usas MySQL, pero aquí dejo tu config
-# Si falla la conexión después, revisaremos esto.
-#DATABASES = {
-#   'default': dj_database_url.config(
-#      default='postgresql://postgres:postgres@localhost:5432/mysite',
-#     conn_max_age=600
-    #)
-#}
-
+# <---------------- NUEVA CONFIGURACIÓN DE BASE DE DATOS PARA POSTGRESQL EN RENDER ----------------->
 DATABASES = {
     'default': dj_database_url.config(
-        conn_max_age=600
-        # dj_database_url es inteligente y busca la variable de entorno 'DATABASE_URL'
+        # dj_database_url buscará la variable de entorno DATABASE_URL en Render
+        conn_max_age=600,
+        ssl_require=True # Requerido por la mayoría de los hosts de PostgreSQL como NeonDB o Render
     )
 }
+# <------------------------------------------------------------------------------------------------>
 
-# === 5. Validadores de Contraseña ===
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -90,34 +94,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# === 6. Internacionalización ===
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-
-STATIC_URL = '/static/'
-
-if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-
-
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-
-# Configuración de WhiteNoise para producción
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-
-# === 8. Configuración de REST Framework ===
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -130,12 +112,3 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
 }
-
-
-# === 9. Configuración CORS ===
-CORS_ALLOWED_ORIGINS = [
-    "https://proyecto-final-webapp-oficial.vercel.app",
-    "http://localhost:4200",
-    "http://localhost:3000",
-]
-CORS_ALLOW_CREDENTIALS = True
