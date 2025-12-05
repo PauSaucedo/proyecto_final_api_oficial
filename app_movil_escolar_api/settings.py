@@ -1,35 +1,42 @@
 import os
 import dj_database_url
 
+# === 1. Configuración Básica ===
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Mantén la clave secreta en variables de entorno en producción
+# IMPORTANTE: En producción, cambia esto por False y usa variables de entorno
 SECRET_KEY = '-_&+lsebec(whhw!%n@ww&1j=4-^j_if9x8$q778+99oz&!ms2'
+DEBUG = True 
 
-DEBUG = True  # en desarrollo
+# Permitimos todo por ahora para que no te de lata al probar
+ALLOWED_HOSTS = ['*']
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+# === 2. Aplicaciones Instaladas ===
 INSTALLED_APPS = [
-    'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_filters',                 # necesarios para los filtros de DRF
+    'django.contrib.staticfiles',  # <--- Solo una vez, ¡super importante!
+    
+    # Third party apps
     'rest_framework',
-    'rest_framework.authtoken',       # conserva soporte de tokens de DRF
-    'corsheaders',                    # librería CORS actualizada
+    'rest_framework.authtoken',
+    'django_filters',
+    'corsheaders',
+    
+    # Tu app (asegúrate que el nombre coincida con tu carpeta)
     'app_movil_escolar_api',
 ]
 
+# === 3. Middleware (El orden importa muchísimo) ===
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware", # <--- Para los estilos
-    'corsheaders.middleware.CorsMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Para servir archivos estáticos
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',     # CORS debe ir antes de CommonMiddleware
+    'corsheaders.middleware.CorsMiddleware',      # CORS va antes de CommonMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -37,37 +44,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Configuración de CORS: define orígenes permitidos y quita CORS_ORIGIN_ALLOW_ALL
-ALLOWED_HOSTS = ['*'] # Deja pasar a Render
-
-CORS_ALLOWED_ORIGINS = [
-    "https://proyecto-final-webapp-oficial.vercel.app", # Tu Frontend en Vercel
-    "http://localhost:4200", # Tu entorno local
-    "http://localhost:3000",
-]
-CORS_ALLOW_CREDENTIALS = True
-
 ROOT_URLCONF = 'app_movil_escolar_api.urls'
-
-
-
-import os
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-
-STATIC_URL = '/static/'
-
-if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-    
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-# TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "templates")]
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 TEMPLATES = [
     {
@@ -87,6 +64,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'app_movil_escolar_api.wsgi.application'
 
+
+# === 4. Base de Datos ===
+# Nota: En PythonAnywhere usualmente usas MySQL, pero aquí dejo tu config
+# Si falla la conexión después, revisaremos esto.
 DATABASES = {
     'default': dj_database_url.config(
         default='postgresql://postgres:postgres@localhost:5432/mysite',
@@ -94,6 +75,8 @@ DATABASES = {
     )
 }
 
+
+# === 5. Validadores de Contraseña ===
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -101,6 +84,8 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+
+# === 6. Internacionalización ===
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -108,10 +93,18 @@ USE_L10N = True
 USE_TZ = True
 
 
-if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# === 7. Archivos Estáticos (CSS, JS, Images) ===
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
+# Configuración de WhiteNoise para producción
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+
+# === 8. Configuración de REST Framework ===
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -124,3 +117,12 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
 }
+
+
+# === 9. Configuración CORS ===
+CORS_ALLOWED_ORIGINS = [
+    "https://proyecto-final-webapp-oficial.vercel.app",
+    "http://localhost:4200",
+    "http://localhost:3000",
+]
+CORS_ALLOW_CREDENTIALS = True
