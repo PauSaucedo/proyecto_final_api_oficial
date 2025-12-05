@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # IMPORTANTE: En producción, cambia esto por False y usa variables de entorno
 SECRET_KEY = '-_&+lsebec(whhw!%n@ww&1j=4-^j_if9x8$q778+99oz&!ms2'
-DEBUG = True 
+DEBUG = Flase
 
 # Permitimos todo por ahora para que no te de lata al probar
 ALLOWED_HOSTS = ['*']
