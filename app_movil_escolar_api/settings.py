@@ -34,7 +34,7 @@ INSTALLED_APPS = [
 # === 3. Middleware (El orden importa muchísimo) ===
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Para servir archivos estáticos
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',      # CORS va antes de CommonMiddleware
     'django.middleware.common.CommonMiddleware',
@@ -76,12 +76,12 @@ WSGI_APPLICATION = 'app_movil_escolar_api.wsgi.application'
 #}
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),  # <--- ESTO es la clave mágica 🔑
-    }
+    'default': dj_database_url.config(
+        # Replace this value with your local database's connection string.
+        default='postgresql://neondb_owner:npg_Q5OKcz0oywZf@ep-floral-art-adzkwfjo-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+        conn_max_age=600
+    )
 }
-
 
 # === 5. Validadores de Contraseña ===
 AUTH_PASSWORD_VALIDATORS = [
@@ -100,8 +100,15 @@ USE_L10N = True
 USE_TZ = True
 
 
-# === 7. Archivos Estáticos (CSS, JS, Images) ===
 STATIC_URL = '/static/'
+
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Configuración de WhiteNoise para producción
