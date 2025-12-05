@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # IMPORTANTE: En producción, cambia esto por False y usa variables de entorno
 SECRET_KEY = '-_&+lsebec(whhw!%n@ww&1j=4-^j_if9x8$q778+99oz&!ms2'
-DEBUG = Flase
+DEBUG = False
 
 # Permitimos todo por ahora para que no te de lata al probar
 ALLOWED_HOSTS = ['*']
@@ -68,11 +68,18 @@ WSGI_APPLICATION = 'app_movil_escolar_api.wsgi.application'
 # === 4. Base de Datos ===
 # Nota: En PythonAnywhere usualmente usas MySQL, pero aquí dejo tu config
 # Si falla la conexión después, revisaremos esto.
+#DATABASES = {
+#   'default': dj_database_url.config(
+#      default='postgresql://postgres:postgres@localhost:5432/mysite',
+#     conn_max_age=600
+    #)
+#}
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://postgres:postgres@localhost:5432/mysite',
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),  # <--- ESTO es la clave mágica 🔑
+    }
 }
 
 
