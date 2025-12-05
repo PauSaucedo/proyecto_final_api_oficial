@@ -77,9 +77,8 @@ WSGI_APPLICATION = 'app_movil_escolar_api.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default='postgresql://neondb_owner:npg_Q5OKcz0oywZf@ep-floral-art-adzkwfjo-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
         conn_max_age=600
+        # dj_database_url es inteligente y busca la variable de entorno 'DATABASE_URL'
     )
 }
 
